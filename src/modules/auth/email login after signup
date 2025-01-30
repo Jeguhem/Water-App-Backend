@@ -1,0 +1,162 @@
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
+import { UserRepository } from '../user/user.repository';
+import { JwtService } from '@nestjs/jwt';
+import { SignInResponse, UserData } from './authTypes';
+import { UserCreationAttributes } from '../user/userTypes';
+import { MailService } from '../mail/mail.service'; // Assuming you have a mail service
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private userRepository: UserRepository,
+    private jwtService: JwtService,
+    private mailService: MailService, // Dependency injection for email service
+  ) {}
+
+  async register(userData: UserCreationAttributes) {
+    try {
+      // Generate email verification token
+      const emailVerificationToken = randomBytes(32).toString('hex');
+
+      // Create user with verification token
+      const user = await this.userRepository.createUser({
+        ...userData,
+        emailVerificationToken,
+        isVerified: false,
+      });
+
+      // Prepare verification link (adjust the base URL as needed)
+      const verificationLink = `http://yourfrontend.com/verify-email?token=${emailVerificationToken}`;
+
+      // Send verification email
+      await this.mailService.sendVerificationEmail({
+        to: userData.email,
+        firstName: userData.firstName,
+        verificationLink,
+      });
+
+      // Remove sensitive information before returning
+      const { password: _, ...result } = user.get({ plain: true });
+      return result;
+    } catch (error) {
+      console.error('Error creating user', error);
+
+      // Handle unique constraint violations (e.g., duplicate email)
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        throw new ConflictException('Email already exists');
+      }
+
+      throw new ConflictException('Error creating user');
+    }
+  }
+
+  async verifyEmail(token: string): Promise<boolean> {
+    try {
+      // Find user with the given verification token
+      const user = await this.userRepository.findUserByVerificationToken(token);
+
+      if (!user) {
+        throw new UnauthorizedException('Invalid verification token');
+      }
+
+      // Mark user as verified and clear the verification token
+      await this.userRepository.updateUser(user.id, {
+        isVerified: true,
+        emailVerificationToken: null,
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Email verification error', error);
+      throw new UnauthorizedException('Email verification failed');
+    }
+  }
+
+  // Modify login to check email verification
+  async login(email: string, password: string): Promise<SignInResponse> {
+    const user = await this.userRepository.getUserByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException(`User ${email} does not exist`);
+    }
+
+    // Check if email is verified
+    if (!user.isVerified) {
+      throw new UnauthorizedException('Please verify your email first');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException(`Invalid password`);
+    }
+
+    const accessToken = await this.jwtService.signAsync({
+      sub: user.id,
+      email: user.email,
+    });
+
+    const userData: UserData = {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      profileImageUrl: user.profileImageUrl,
+    };
+
+    return {
+      accessToken,
+      userData,
+    };
+  }
+}
+
+//mail service methods
+
+@Injectable()
+export class MailService {
+  constructor(private mailerService: MailerService) {}
+
+  async sendVerificationEmail({
+    to,
+    firstName,
+    verificationLink,
+  }: {
+    to: string;
+    firstName: string;
+    verificationLink: string;
+  }) {
+    await this.mailerService.sendMail({
+      to,
+      subject: 'Verify Your Email',
+      template: 'verification', // You'll need to create this email template
+      context: {
+        firstName,
+        verificationLink,
+      },
+    });
+  }
+}
+
+//user repository methods
+
+@Injectable()
+export class UserRepository {
+  async findUserByVerificationToken(token: string) {
+    return this.userModel.findOne({
+      where: { emailVerificationToken: token },
+    });
+  }
+
+  async updateUser(id: number, updateData: Partial<User>) {
+    const user = await this.userModel.findByPk(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user.update(updateData);
+  }
+}
