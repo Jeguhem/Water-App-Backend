@@ -36,6 +36,7 @@ export const databaseProviders = [
         // await sequelize.sync({ force: false });
         // await sequelize.sync({ alter: true });
         // await Water_products.sync({ alter: true });
+        // await User.sync({ alter: true });
         // await Orders.sync({ alter: true });
         // await OrderItems.sync({ alter: true });
         console.log('✅ Database tables synchronized successfully.');

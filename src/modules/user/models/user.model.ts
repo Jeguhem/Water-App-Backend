@@ -11,9 +11,12 @@ import {
   PrimaryKey,
   BeforeCreate,
   BeforeUpdate,
+  BelongsTo,
+  HasMany,
 } from 'sequelize-typescript';
 import * as bcrypt from 'bcrypt';
 import { UserAttributes, UserCreationAttributes } from '../userTypes';
+import { Orders } from 'src/modules/orders/model/orders.model';
 
 @Table({
   tableName: 'users',
@@ -100,4 +103,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
   @Default(false)
   @Column(DataType.BOOLEAN)
   isEmailVerified: boolean;
+
+  @HasMany(() => Orders)
+  orders: Orders[];
 }

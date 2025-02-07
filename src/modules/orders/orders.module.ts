@@ -5,9 +5,10 @@ import { DatabaseModule } from 'src/config/database/database.modules';
 import { OrderRepository } from './orders.repository';
 import { Orders } from './model/orders.model';
 import { OrderItems } from './model/order-items.models';
+import { ProductsModule } from '../products/products.module';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, ProductsModule],
   controllers: [OrdersController],
   providers: [
     OrdersService,

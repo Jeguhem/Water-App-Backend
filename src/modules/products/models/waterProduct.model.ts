@@ -12,18 +12,23 @@ import { WaterProductType } from '../productsTypes';
 import { OrderItems } from 'src/modules/orders/model/order-items.models';
 
 @Table({
-  tableName: 'water-products',
+  tableName: 'water_products',
   timestamps: true,
 })
 export class Water_products extends Model<WaterProductType> {
   @PrimaryKey
-  @Default(DataType.UUIDV4)
-  @Column(DataType.UUID)
+  @Column({
+    type: DataType.STRING(6),
+    defaultValue: () => {
+      const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let result = '';
+      for (let i = 0; i < 6; i++) {
+        result += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return result;
+    },
+  })
   readonly id: string;
-
-  @ForeignKey(() => OrderItems)
-  @Column(DataType.UUID)
-  orderId: string;
 
   @Column(DataType.STRING)
   name: string;
@@ -43,7 +48,4 @@ export class Water_products extends Model<WaterProductType> {
   @Default(false)
   @Column(DataType.BOOLEAN)
   isAvailable: boolean;
-
-  @BelongsTo(() => OrderItems)
-  orderItems: OrderItems;
 }

@@ -5,7 +5,6 @@ export interface WaterProductType {
   description: string;
   unit: string;
   price: number;
-  orderId: string;
   isAvailable: boolean;
   createdAt: string;
 }

@@ -3,20 +3,23 @@ export interface OrderTypes {
   userId: string;
   driverId: string;
   items: OrderItemProductType[];
-  status: 'pending' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
+  status?: OrderStatus;
   totalAmount: number;
-  orderDate: string;
   deliveryAddress: string;
-  deliveryCity: string;
-  deliveryState: string;
   deliveryDate: string;
   createdAt: string;
+}
+export enum OrderStatus {
+  PENDING = 'pending',
+  FAILED = 'failed',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
 }
 
 export interface OrderItemProductType {
   productId: string;
   quantity: number;
-  price: number;
 }
 
 export interface OrderItemsTypes {
@@ -28,5 +31,5 @@ export interface OrderItemsTypes {
 }
 
 export interface OrderTypesCreationAttributes
-  extends Omit<OrderTypes, 'id' | 'createdAt'> {}
+  extends Omit<OrderTypes, 'id' | 'driverId' | 'createdAt'> {}
 [];

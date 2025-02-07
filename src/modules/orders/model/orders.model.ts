@@ -107,29 +107,17 @@ export class Orders extends Model<OrderTypes> {
   @AllowNull(false)
   @Default('pending')
   @Column(
-    DataType.ENUM('pending', 'failed', 'in-progress', 'completed', 'cancelled'),
+    DataType.ENUM('pending', 'failed', 'in_progress', 'completed', 'cancelled'),
   )
-  status: 'pending' | 'failed' | 'in-progress' | 'completed' | 'cancelled';
+  status: 'pending' | 'failed' | 'in_progress' | 'completed' | 'cancelled';
 
   @AllowNull(false)
   @Column(DataType.DECIMAL)
   totalAmount: number;
 
   @AllowNull(false)
-  @Column(DataType.DATE)
-  orderDate: Date;
-
-  @AllowNull(false)
   @Column(DataType.STRING)
   deliveryAddress: string;
-
-  @AllowNull(false)
-  @Column(DataType.STRING)
-  deliveryCity: string;
-
-  @AllowNull(false)
-  @Column(DataType.STRING)
-  deliveryState: string;
 
   @AllowNull(false)
   @Column(DataType.DATE)

@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { ResponseService } from 'src/shared/response/response.service';
-import { OrderTypesCreationAttributes } from './orderTypes';
+import { OrderStatus, OrderTypesCreationAttributes } from './orderTypes';
 
 @Controller('orders')
 export class OrdersController {
@@ -17,9 +17,7 @@ export class OrdersController {
   async createOrder(@Body() params: OrderTypesCreationAttributes) {
     const orderDetails = params;
     const order = await this.ordersService.createOrder(orderDetails);
-    for (const item of orderDetails.items) {
-      await this.ordersService.createOrderItem(order.id, item);
-    }
+
     return {
       message: 'Order created successfully',
       order,

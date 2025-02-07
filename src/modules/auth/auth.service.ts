@@ -6,6 +6,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from '../user/user.repository';
 import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
 import { SignInResponse, UserData } from './authTypes';
 import { UserCreationAttributes } from '../user/userTypes';
 
@@ -16,7 +17,11 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(email: string, password: string): Promise<SignInResponse> {
+  async login(
+    email: string,
+    password: string,
+    res?: Response,
+  ): Promise<SignInResponse> {
     const user = await this.userRepository.getUserByEmail(email);
     if (!user) {
       throw new UnauthorizedException(`User ${email} does not exist`);
@@ -38,6 +43,13 @@ export class AuthService {
       email: user.email,
       profileImageUrl: user.profileImageUrl,
     };
+
+    // res.cookie('accessToken', accessToken, {
+    //   // httpOnly: false, // Prevent client-side access to the cookie
+    //   secure: true, // Use HTTPS to transmit the cookie
+    //   sameSite: 'strict', // Prevent CSRF attacks
+    //   maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    // });
 
     return {
       message: 'login successfull',

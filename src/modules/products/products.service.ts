@@ -13,4 +13,8 @@ export class ProductsService {
   async createWaterProduct(waterProduct: WaterProductCreationAttributes) {
     return this.productRepository.createWaterProduct(waterProduct);
   }
+
+  async findProductById(id: string) {
+    return this.productRepository.findProductById(id);
+  }
 }

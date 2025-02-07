@@ -9,6 +9,7 @@ import { SharedModule } from './shared/shared.module';
 import { ProductsModule } from './modules/products/products.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { CartModule } from './modules/cart/cart.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CartModule } from './modules/cart/cart.module';
     ProductsModule,
     OrdersModule,
     CartModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
