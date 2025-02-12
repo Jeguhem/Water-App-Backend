@@ -5,8 +5,8 @@ import {
   OrderStatus,
   OrderTypesCreationAttributes,
 } from './orderTypes';
-import { Orders } from './model/orders.model';
 import { ProductRepository } from '../products/products.repository';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class OrdersService {
@@ -69,13 +69,42 @@ export class OrdersService {
     return await this.orderRepository.createOrderItem(orderId, item);
   }
 
-  async getAllOrders(status?: OrderStatus) {
-    const whereClause = status ? { status } : {};
-    return this.orderRepository.getAllOrders(whereClause);
+  async getAllOrders(status?: OrderStatus, date?: Date) {
+    let whereClause: any = {};
+
+    // Add status filter if provided
+    if (status) {
+      whereClause.status = status;
+    }
+
+    // Add date filter if provided
+    if (date) {
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      whereClause.createdAt = {
+        gte: startOfDay,
+        lte: endOfDay,
+      };
+    }
+
+    try {
+      const orders = await this.orderRepository.getAllOrders(whereClause);
+      return orders;
+    } catch (error) {
+      throw new Error(`Failed to fetch orders: ${error.message}`);
+    }
   }
 
   async getAllOrdersByUserId(userId: string) {
     return this.orderRepository.getAllOrdersByUserId(userId);
+  }
+
+  async getOrderById(orderId: string) {
+    return this.orderRepository.getOrderById(orderId);
   }
 
   async getAllPendingOrders() {
@@ -88,5 +117,81 @@ export class OrdersService {
 
   async assignOrderToDriver(orderId: string, driverId: string) {
     return this.orderRepository.assignOrderToDriver(orderId, driverId);
+  }
+
+  async getOrderItems(orderId: string) {
+    return await this.orderRepository.findOrderItemsByOrderId(orderId);
+  }
+
+  async getRevenueMetrics(
+    range?: string,
+    startDate?: string,
+    endDate?: string,
+  ) {
+    let whereClause: any = {};
+    const now = new Date();
+
+    if (range) {
+      const cleanRange = range.toLowerCase().replace(/_/g, ''); // Normalize input
+
+      switch (cleanRange) {
+        case 'today':
+          const startOfDay = new Date();
+          startOfDay.setHours(0, 0, 0, 0);
+          whereClause.createdAt = { [Op.between]: [startOfDay, now] };
+          break;
+
+        case 'thisweek':
+          const startOfWeek = new Date();
+          startOfWeek.setDate(now.getDate() - now.getDay());
+          startOfWeek.setHours(0, 0, 0, 0);
+          whereClause.createdAt = { [Op.between]: [startOfWeek, now] };
+          break;
+
+        case 'thismonth':
+          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+          whereClause.createdAt = { [Op.between]: [startOfMonth, now] };
+          break;
+
+        case 'thisyear':
+          const startOfYear = new Date(now.getFullYear(), 0, 1);
+          whereClause.createdAt = { [Op.between]: [startOfYear, now] };
+          break;
+
+        case 'last7days':
+          whereClause.createdAt = {
+            [Op.gte]: new Date(now.setDate(now.getDate() - 7)),
+          };
+          break;
+
+        case 'last30days':
+          whereClause.createdAt = {
+            [Op.gte]: new Date(now.setDate(now.getDate() - 30)),
+          };
+          break;
+
+        case 'last6months':
+          whereClause.createdAt = {
+            [Op.gte]: new Date(now.setMonth(now.getMonth() - 6)),
+          };
+          break;
+
+        case 'lastyear':
+          whereClause.createdAt = {
+            [Op.gte]: new Date(now.setFullYear(now.getFullYear() - 1)),
+          };
+          break;
+      }
+    } else if (startDate && endDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+
+      whereClause.createdAt = { [Op.between]: [start, end] };
+    }
+
+    return this.orderRepository.getMetrics(whereClause);
   }
 }

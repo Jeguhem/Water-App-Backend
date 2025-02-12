@@ -17,6 +17,7 @@ export interface SignupParams {
 export interface SignInResponse {
   message: string;
   accessToken: string;
+  refreshToken: string;
   userData: UserData;
 }
 
@@ -25,5 +26,5 @@ export interface UserData {
   firstName: string;
   lastName: string;
   email: string;
-  profileImageUrl: string;
+  profileImageUrl?: string;
 }

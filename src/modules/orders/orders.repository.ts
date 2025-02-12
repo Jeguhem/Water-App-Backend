@@ -8,6 +8,7 @@ import {
 } from './orderTypes';
 import { OrderItems } from './model/order-items.models';
 import { stat } from 'fs';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class OrderRepository {
@@ -50,6 +51,10 @@ export class OrderRepository {
     };
   }
 
+  async getOrderById(orderId: string) {
+    return await this.order.findByPk(orderId);
+  }
+
   async getAllPendingOrders() {
     const orders = await this.order.findAndCountAll({
       where: { status: 'pending' },
@@ -74,5 +79,37 @@ export class OrderRepository {
       message: 'Order assigned to driver',
       status: 201,
     };
+  }
+
+  async findOrderItemsByOrderId(orderId: string) {
+    return await this.orderItems.findAll({ where: { orderId } });
+  }
+
+  async getMetrics(
+    whereClause = {},
+  ): Promise<{ totalRevenue: number; totalOrders: number }> {
+    try {
+      const result = (await this.order.findAll({
+        where: (whereClause = {
+          ...whereClause,
+          status: { [Op.notIn]: ['canceled', 'refunded'] }, // Exclude canceled/refunded orders
+        }),
+        attributes: [
+          [
+            this.sequelize.fn('SUM', this.sequelize.col('totalAmount')),
+            'totalRevenue',
+          ],
+          [this.sequelize.fn('COUNT', this.sequelize.col('id')), 'totalOrders'],
+        ],
+        raw: true,
+      })) as unknown as { totalRevenue: string; totalOrders: string }[];
+
+      return {
+        totalRevenue: Number(result[0]?.totalRevenue) || 0,
+        totalOrders: Number(result[0]?.totalOrders) || 0,
+      };
+    } catch (error) {
+      throw new Error(`Failed to fetch metrics: ${error.message}`);
+    }
   }
 }

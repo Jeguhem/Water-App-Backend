@@ -17,54 +17,74 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(
-    email: string,
-    password: string,
-    res?: Response,
-  ): Promise<SignInResponse> {
+  async login(email: string, password: string): Promise<SignInResponse> {
     const user = await this.userRepository.getUserByEmail(email);
     if (!user) {
       throw new UnauthorizedException(`User ${email} does not exist`);
     }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException(`Invalid password`);
+      throw new UnauthorizedException('Invalid password');
     }
 
-    const accessToken = await this.jwtService.signAsync({
-      sub: user.id,
-      email: user.email,
-    });
+    // Generate Access Token (Short-lived)
+    const accessToken = await this.jwtService.signAsync(
+      { sub: user.id, email: user.email },
+      { secret: process.env.JWT_SECRET, expiresIn: '15m' }, // 15 minutes
+    );
 
-    const userData: UserData = {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      profileImageUrl: user.profileImageUrl,
-    };
-
-    // res.cookie('accessToken', accessToken, {
-    //   // httpOnly: false, // Prevent client-side access to the cookie
-    //   secure: true, // Use HTTPS to transmit the cookie
-    //   sameSite: 'strict', // Prevent CSRF attacks
-    //   maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    // });
+    // Generate Refresh Token (Long-lived)
+    const refreshToken = await this.jwtService.signAsync(
+      { sub: user.id },
+      { secret: process.env.REFRESH_TOKEN_SECRET, expiresIn: '7d' }, // 7 days
+    );
 
     return {
-      message: 'login successfull',
+      message: 'Login successful',
       accessToken,
-      userData,
+      refreshToken, // Send this back to client
+      userData: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        profileImageUrl: user.profileImageUrl,
+      },
     };
   }
 
-  async register(userData: UserCreationAttributes) {
+  async register(userData: UserCreationAttributes): Promise<SignInResponse> {
     try {
       const user = await this.userRepository.createUser(userData);
       const { password: _, ...result } = user.get({ plain: true });
-      return result;
+
+      // Generate Access Token (Short-lived)
+      const accessToken = await this.jwtService.signAsync(
+        { sub: user.id, email: user.email },
+        { secret: process.env.JWT_SECRET, expiresIn: '15m' }, // 15 minutes
+      );
+
+      // Generate Refresh Token (Long-lived)
+      const refreshToken = await this.jwtService.signAsync(
+        { sub: user.id },
+        { secret: process.env.REFRESH_TOKEN_SECRET, expiresIn: '7d' }, // 7 days
+      );
+
+      return {
+        message: 'User registered successfully',
+        accessToken,
+        refreshToken, // Send this back to client
+        userData: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          profileImageUrl: user.profileImageUrl,
+        },
+      };
     } catch (error) {
-      console.error('error creating user', error);
+      console.error('Error creating user', error);
       throw new ConflictException('Error creating user');
     }
   }

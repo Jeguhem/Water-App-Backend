@@ -74,6 +74,7 @@
 
 import {
   AllowNull,
+  BeforeCreate,
   BelongsTo,
   Column,
   DataType,
@@ -92,9 +93,8 @@ import { OrderTypes } from '../orderTypes';
 })
 export class Orders extends Model<OrderTypes> {
   @PrimaryKey
-  @Default(DataType.UUIDV4)
-  @Column(DataType.UUID)
-  readonly id: string;
+  @Column(DataType.STRING) // Change from UUID to STRING
+  id: string;
 
   @ForeignKey(() => User)
   @Column(DataType.UUID)
@@ -125,4 +125,9 @@ export class Orders extends Model<OrderTypes> {
 
   @BelongsTo(() => User)
   user: User;
+
+  @BeforeCreate
+  static generateOrderId(instance: Orders) {
+    instance.id = `ord-${Math.floor(100000 + Math.random() * 900000)}`;
+  }
 }

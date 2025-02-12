@@ -11,13 +11,30 @@ export class AdminController {
   ) {}
 
   @Get('/orders')
-  async getOrders(@Query('status') status?: OrderStatus) {
-    return this.orderService.getAllOrders(status);
+  async getOrders(
+    @Query('status') status?: OrderStatus,
+    @Query('date') date?: Date,
+  ) {
+    return this.orderService.getAllOrders(status, date);
   }
 
   @Get('/pending-orders')
-  async getAllPendingOrders(): Promise<any> {
+  async getAllPendingOrders() {
     return this.orderService.getAllPendingOrders();
+  }
+
+  @Get('/revenue-metrics')
+  async getRevenueMetrics(
+    @Query('range') range?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.orderService.getRevenueMetrics();
+  }
+
+  @Get('/orders-by-location')
+  async getOrdersByLocation(@Query('city') city: string) {
+    // return this.orderService.getOrdersByLocation(location);
   }
 
   @Patch('/update-order-status/:id')

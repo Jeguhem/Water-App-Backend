@@ -6,9 +6,10 @@ import { OrderRepository } from './orders.repository';
 import { Orders } from './model/orders.model';
 import { OrderItems } from './model/order-items.models';
 import { ProductsModule } from '../products/products.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [DatabaseModule, ProductsModule],
+  imports: [DatabaseModule, ProductsModule, AuthModule],
   controllers: [OrdersController],
   providers: [
     OrdersService,
