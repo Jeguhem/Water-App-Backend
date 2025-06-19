@@ -1,21 +1,3 @@
-// import { Injectable } from '@nestjs/common';
-// import { ResponseDto } from './responseType';
-
-// @Injectable()
-// export class ResponseService {
-//   buildResponse<T>(
-//     statusCode: number,
-//     message: string,
-//     data?: T,
-//   ): ResponseDto<T> {
-//     return {
-//       statusCode,
-//       message,
-//       data,
-//     };
-//   }
-// }
-
 import { Injectable, HttpStatus } from '@nestjs/common';
 
 // Enum for common response messages

@@ -6,6 +6,7 @@ export interface UserAttributes {
   password: string;
   phoneNo?: string;
   address?: string;
+  lga?: string;
   city?: string;
   state?: string;
   country?: string;
@@ -13,5 +14,4 @@ export interface UserAttributes {
   role?: 'user' | 'driver' | 'moderator' | 'admin' | 'superadmin';
 }
 
-export interface UserCreationAttributes
-  extends Omit<UserAttributes, 'id' | 'createdAt'> {}
+export type UserCreationAttributes = Omit<UserAttributes, 'id' | 'createdAt'>;

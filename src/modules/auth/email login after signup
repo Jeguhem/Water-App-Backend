@@ -7,7 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { UserRepository } from '../user/user.repository';
 import { JwtService } from '@nestjs/jwt';
-import { SignInResponse, UserData } from './authTypes';
+import { SignInResponse, UserDataDto } from './authTypes';
 import { UserCreationAttributes } from '../user/userTypes';
 import { MailService } from '../mail/mail.service'; // Assuming you have a mail service
 
@@ -19,14 +19,14 @@ export class AuthService {
     private mailService: MailService, // Dependency injection for email service
   ) {}
 
-  async register(userData: UserCreationAttributes) {
+  async register(UserData: UserCreationAttributes) {
     try {
       // Generate email verification token
       const emailVerificationToken = randomBytes(32).toString('hex');
 
       // Create user with verification token
       const user = await this.userRepository.createUser({
-        ...userData,
+        ...UserDataDto,
         emailVerificationToken,
         isVerified: false,
       });
@@ -36,8 +36,8 @@ export class AuthService {
 
       // Send verification email
       await this.mailService.sendVerificationEmail({
-        to: userData.email,
-        firstName: userData.firstName,
+        to: UserDataDto.email,
+        firstName: UserDataDto.firstName,
         verificationLink,
       });
 
@@ -100,7 +100,7 @@ export class AuthService {
       email: user.email,
     });
 
-    const userData: UserData = {
+    const userData: UserDataDto = {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,

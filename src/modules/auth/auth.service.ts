@@ -1,13 +1,8 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from '../user/user.repository';
 import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
-import { SignInResponse, UserData } from './authTypes';
+import { SignInResponse } from './dtos/auth.dto';
 import { UserCreationAttributes } from '../user/userTypes';
 
 @Injectable()
@@ -49,7 +44,6 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        profileImageUrl: user.profileImageUrl,
       },
     };
   }
@@ -80,7 +74,6 @@ export class AuthService {
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
-          profileImageUrl: user.profileImageUrl,
         },
       };
     } catch (error) {

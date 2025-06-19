@@ -2,6 +2,10 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
+# Water App Backend
+
+A NestJS-based backend application for a water delivery service. This application provides APIs for user authentication, product management, cart functionality, order processing, and more.
+
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
@@ -24,15 +28,51 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The Water App Backend is a comprehensive API service built with [Nest](https://github.com/nestjs/nest) framework that powers a water delivery application. It provides endpoints for user management, authentication, product catalog, shopping cart, order processing, and payment transactions.
 
-## Project setup
+## Features
+
+- **User Authentication**: Secure login and registration with JWT
+- **Product Management**: Water product catalog with details and pricing
+- **Shopping Cart**: Add, update, and remove items from cart
+- **Order Processing**: Create and manage delivery orders
+- **Admin Dashboard**: Administrative controls for product and user management
+- **Transaction Handling**: Process and track payment transactions
+- **API Documentation**: Swagger UI for API exploration and testing
+
+## Project Structure
+
+The project follows a modular architecture with the following key components:
+
+- **Auth Module**: Handles user authentication and authorization
+- **User Module**: Manages user profiles and account information
+- **Products Module**: Manages the water product catalog
+- **Cart Module**: Handles shopping cart functionality
+- **Orders Module**: Processes and tracks customer orders
+- **Transactions Module**: Manages payment transactions
+- **Admin Module**: Provides administrative capabilities
+
+## Project Setup
 
 ```bash
 $ npm install
 ```
 
-## Compile and run the project
+## Environment Configuration
+
+Create a `.env` file in the root directory with the following variables:
+
+```
+PORT=3000
+DATABASE_HOST=localhost
+DATABASE_PORT=3306
+DATABASE_USERNAME=root
+DATABASE_PASSWORD=your_password
+DATABASE_NAME=water_app_db
+JWT_SECRET=your_jwt_secret
+```
+
+## Compile and Run the Project
 
 ```bash
 # development
@@ -45,7 +85,41 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Run tests
+## API Documentation
+
+The API documentation is available through Swagger UI. After starting the application, you can access it at:
+
+```
+http://localhost:3000/docs
+```
+
+This provides an interactive interface to explore and test all available endpoints.
+
+## Database
+
+This project uses MySQL with Sequelize ORM. The database configuration can be found in:
+
+```
+src/config/database/
+```
+
+### Migrations
+
+To run database migrations:
+
+```bash
+$ npx sequelize-cli db:migrate
+```
+
+### Seeders
+
+To seed the database with initial data:
+
+```bash
+$ npx sequelize-cli db:seed:all
+```
+
+## Run Tests
 
 ```bash
 # unit tests
@@ -60,16 +134,21 @@ $ npm run test:cov
 
 ## Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+When you're ready to deploy your Water App Backend to production, there are some key steps you can take to ensure it runs as efficiently as possible:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+1. Set up proper environment variables for production
+2. Configure a production-ready database
+3. Set up proper logging and monitoring
+4. Configure CORS settings for your frontend application
+5. Use a process manager like PM2 to keep the application running
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+Check out the [NestJS deployment documentation](https://docs.nestjs.com/deployment) for more information.
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+For cloud deployment options, consider:
+- AWS Elastic Beanstalk
+- Google Cloud Run
+- Heroku
+- Digital Ocean App Platform
 
 ## Resources
 
@@ -90,9 +169,8 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 ## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Author - omotowa oluwafemi
+- Website - [My portfolio](https://femiomotowa.vercel.app/)
 
 ## License
 

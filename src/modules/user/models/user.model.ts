@@ -11,7 +11,6 @@ import {
   PrimaryKey,
   BeforeCreate,
   BeforeUpdate,
-  BelongsTo,
   HasMany,
 } from 'sequelize-typescript';
 import * as bcrypt from 'bcrypt';
@@ -21,6 +20,7 @@ import { Orders } from 'src/modules/orders/model/orders.model';
 @Table({
   tableName: 'users',
   timestamps: true,
+  paranoid: true,
 })
 export class User extends Model<UserAttributes, UserCreationAttributes> {
   @PrimaryKey
@@ -56,11 +56,6 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
     }
   }
 
-  @AllowNull(false)
-  @Default(DataType.NOW)
-  @Column(DataType.DATE)
-  createdAt: Date;
-
   @Column(DataType.STRING)
   phoneNo?: string;
 
@@ -68,7 +63,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
   address?: string;
 
   @Column(DataType.STRING)
-  city?: string;
+  lga?: string;
 
   @AllowNull(true)
   @Column(DataType.STRING)
@@ -78,31 +73,10 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
   @Column(DataType.STRING)
   country?: string;
 
-  @AllowNull(true)
-  @Column(DataType.STRING)
-  zip?: number;
-
   @AllowNull(false)
   @Default('user')
   @Column(DataType.ENUM('user', 'driver', 'moderator', 'admin', 'superadmin'))
   role: 'user' | 'driver' | 'moderator' | 'admin' | 'superadmin';
-
-  @AllowNull(false)
-  @Default(false)
-  @Column(DataType.BOOLEAN)
-  isFlagged: boolean;
-
-  @AllowNull(true)
-  @Column(DataType.STRING)
-  profileImageUrl: string;
-
-  @AllowNull(true)
-  @Column(DataType.STRING)
-  emailVerificationToken: string; // for login after signup and password reset
-
-  @Default(false)
-  @Column(DataType.BOOLEAN)
-  isEmailVerified: boolean;
 
   @HasMany(() => Orders)
   orders: Orders[];

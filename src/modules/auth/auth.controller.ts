@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { SignupParams } from './authTypes';
+import { Body, Controller, Post } from '@nestjs/common';
+import { CreateUserDto, LoginDto } from './dtos/auth.dto';
 import { AuthService } from './auth.service';
 import { UserCreationAttributes } from '../user/userTypes';
 import { UserService } from '../user/user.service';
 import { ResponseService } from 'src/shared/response/response.service';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -13,14 +15,16 @@ export class AuthController {
     private responseService: ResponseService,
   ) {}
 
+  @ApiOperation({ summary: 'Login' })
+  @ApiBody({ type: LoginDto })
   @Post('/login')
-  async login(@Body() params: SignupParams) {
+  async login(@Body() params: LoginDto):Promise<any> {
     const { email, password } = params;
     try {
       const loginResponse = await this.authService.login(email, password);
       return this.responseService.buildResponse(
         201,
-        'Login succesful',
+        'Login successful',
         loginResponse,
       );
     } catch (error) {
@@ -28,11 +32,12 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Register User' })
+  @ApiBody({ type: CreateUserDto })
   @Post('/register-user')
   async createUserAccount(@Body() params: UserCreationAttributes) {
-    const userData = params;
     try {
-      await this.userService.createUser(userData);
+      await this.userService.createUser(params);
       return this.responseService.buildResponse(201, 'User created');
     } catch (error) {
       console.error('error creating user', error);
