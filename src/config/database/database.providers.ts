@@ -27,9 +27,7 @@ export const databaseProviders = [
       try {
         // Test the connection
         await sequelize.authenticate();
-        console.log(
-          '✅ Database connection has been established successfully.',
-        );
+        console.log('✅ Database connection has been established successfully.');
 
         // Add models and sync
         sequelize.addModels([User, Orders, OrderItems, Water_products]);

@@ -11,7 +11,15 @@ export interface UserAttributes {
   state?: string;
   country?: string;
   zip?: number;
-  role?: 'user' | 'driver' | 'moderator' | 'admin' | 'superadmin';
+  role?: UserRole;
 }
 
 export type UserCreationAttributes = Omit<UserAttributes, 'id' | 'createdAt'>;
+
+export enum UserRole {
+  USER = 'user',
+  DRIVER = 'driver',
+  MODERATOR = 'moderator',
+  ADMIN = 'admin',
+  SUPERADMIN = 'superadmin',
+}

@@ -1,38 +1,47 @@
-import { Controller, Get, Post, Patch, Body, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Patch,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserCreationAttributes } from './userTypes';
-import { ResponseService } from 'src/shared/response/response.service';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CreateUserDto } from './dtos/user.dto';
 
+@ApiTags('Users')
 @Controller('user')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    private readonly responseService: ResponseService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
+  @ApiOperation({ summary: 'Get all users' })
   @Get('/')
   public async getUsers() {
-    return this.userService.getUsers();
+    try {
+      return this.userService.getUsers();
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: error,
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
   }
 
+  @ApiOperation({ summary: 'Update a user' })
+  @ApiBody({ type: CreateUserDto })
   @Patch('/update/:id')
-  public async updateUser(
-    @Param('id') id: string,
-    @Body() params: UserCreationAttributes,
-  ) {
-    try {
-      const findUser = await this.userService.findUserById(id);
-      if (!findUser) {
-        return this.responseService.buildErrorResponse(404, 'User not found');
-      }
-      const updatedUser = await this.userService.updateUser(id, params);
-      // return updatedUser;
-      return this.responseService.buildSuccessResponse(
-        updatedUser,
-        `updated user ${id} successfully updated`,
-      );
-    } catch (err) {
-      return this.responseService.buildErrorResponse(err.message, '500');
+  public async updateUser(@Param('id') id: string, @Body() params: UserCreationAttributes) {
+    const findUser = await this.userService.findUserById(id);
+    if (!findUser) {
+      throw new NotFoundException(`User with id ${id} not found`);
     }
+    return await this.userService.updateUser(id, params);
   }
 }

@@ -1,37 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateUserDto {
-  @ApiProperty({ example: 'John' })
-  firstName: string;
-
-  @ApiProperty({ example: 'Doe' })
-  lastName: string;
-
-  @ApiProperty({ example: 'john.doe@example.com' })
-  email: string;
-
-  @ApiProperty({ example: 'password123' })
-  password: string;
-
-  @ApiProperty({ example: '1234567890' })
-  phoneNo?: string;
-
-  @ApiProperty({ example: '123 Main St' })
-  address?: string;
-
-  @ApiProperty({ example: 'Bronx' })
-  city?: string;
-
-  @ApiProperty({ example: 'New York' })
-  state?: string;
-
-  @ApiProperty({ example: 'United state' })
-  country?: string;
-
-  @ApiProperty()
-  zip?: number;
-}
-
 export class LoginDto {
   @ApiProperty({ example: 'john.doe@example.com' })
   email: string;
@@ -46,7 +14,6 @@ export interface SignInResponse {
   refreshToken: string;
   userData: UserDataDto;
 }
-
 
 export class UserDataDto {
   @ApiProperty({
@@ -74,4 +41,3 @@ export class UserDataDto {
   })
   profileImageUrl?: string;
 }
-

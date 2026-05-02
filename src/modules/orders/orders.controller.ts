@@ -1,23 +1,11 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { OrdersService } from './orders.service';
-import { ResponseService } from 'src/shared/response/response.service';
 import { OrderStatus, OrderTypesCreationAttributes } from './orderTypes';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('orders')
 export class OrdersController {
-  constructor(
-    private readonly ordersService: OrdersService,
-    private reponseService: ResponseService,
-  ) {}
+  constructor(private readonly ordersService: OrdersService) {}
 
   @Get('/')
   async getAllOrders() {}
@@ -38,20 +26,14 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard)
   async getOrderById(id: string) {
     const order = await this.ordersService.getOrderById(id);
-    return this.reponseService.buildSuccessResponse(order);
+    return order;
   }
 
   @Patch('/:id/cancel')
   @UseGuards(JwtAuthGuard)
-  async updateOrderStatus(
-    @Param('id') id: string,
-    @Body() params: OrderStatus,
-  ) {
-    const updateOrderStatus = await this.ordersService.updateOrderStatus(
-      id,
-      params,
-    );
-    return this.reponseService.buildSuccessResponse(updateOrderStatus);
+  async updateOrderStatus(@Param('id') id: string, @Body() params: OrderStatus) {
+    const updateOrderStatus = await this.ordersService.updateOrderStatus(id, params);
+    return updateOrderStatus;
   }
 
   @Get('/order-items/:orderId')

@@ -19,7 +19,7 @@ export class UserRepository {
     const user = await this.userModel.findAndCountAll();
     return {
       count: user.count,
-      users: user.rows,
+      rows: user.rows,
     };
   }
 
